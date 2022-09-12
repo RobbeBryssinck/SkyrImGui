@@ -15,6 +15,8 @@ configure_file(
 	@ONLY
 )
 
+find_package(imgui CONFIG REQUIRED)
+
 source_group("src" FILES "${VERSION_HEADER}")
 
 configure_file(
@@ -77,6 +79,7 @@ target_link_libraries(
 	"${PROJECT_NAME}"
 	PRIVATE
 		CommonLibSSE::CommonLibSSE
+		imgui::imgui
 )
 
 target_precompile_headers(
