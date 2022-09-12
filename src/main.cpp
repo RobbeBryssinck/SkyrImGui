@@ -1,3 +1,6 @@
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <Windows.h>
+
 namespace
 {
 	void InitializeLog()
@@ -16,16 +19,24 @@ namespace
 
 #ifndef NDEBUG
 		const auto level = spdlog::level::trace;
+
+		if (AllocConsole()) {
+			FILE* file = nullptr;
+            freopen_s(&file, "CONOUT$", "w", stdout);
+            SetConsoleTitleA("SkyrImGui");
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED);
+		}
 #else
 		const auto level = spdlog::level::info;
 #endif
+		auto console = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+		console->set_pattern("%^[%H:%M:%S] [%l]%$ %v");
 
-		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+		auto log = std::make_shared<spdlog::logger>("", spdlog::sinks_init_list{sink, console});
 		log->set_level(level);
 		log->flush_on(level);
 
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
 	}
 }
 
@@ -43,8 +54,10 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
+	while (!IsDebuggerPresent())
+		Sleep(100);
+
 	InitializeLog();
-	//logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 	logger::info("{} v{}", Plugin::NAME, Plugin::VERSION.string());
 
 	SKSE::Init(a_skse);
