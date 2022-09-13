@@ -1,6 +1,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <Windows.h>
 #include "hooks/D3D11Hooks.h"
+#include "hooks/DInputHook.h"
 
 namespace
 {
@@ -64,6 +65,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	SKSE::Init(a_skse);
 
 	D3D11Hooks::Install();
+	DInputHook::Install();
 
 	return true;
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Windows.h>
+
 struct IDXGISwapChain;
 
 class ImGuiRunner
@@ -12,4 +14,6 @@ public:
 	void Create(IDXGISwapChain* pChain) noexcept;
 	void Present() noexcept;
 	void Lost() noexcept;
+
+	LRESULT WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };

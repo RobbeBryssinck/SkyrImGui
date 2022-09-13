@@ -8,6 +8,8 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/ImGuiRunner.cpp"
 	"${SOURCE_DIR}/hooks/D3D11Hooks.h"
 	"${SOURCE_DIR}/hooks/D3D11Hooks.cpp"
+	"${SOURCE_DIR}/hooks/DInputHook.h"
+	"${SOURCE_DIR}/hooks/DInputHook.cpp"
 )
 
 source_group(TREE "${ROOT_DIR}" FILES ${SOURCE_FILES})
