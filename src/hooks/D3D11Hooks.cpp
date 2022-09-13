@@ -1,5 +1,6 @@
 #include "D3D11Hooks.h"
-#include <SKSE/IAT.h>/
+
+#include <SKSE/IAT.h>
 #include <d3d11.h>
 #include <ImGuiRunner.h>
 
@@ -40,14 +41,13 @@ HRESULT HookD3D11CreateDeviceAndSwapChain(_In_opt_ IDXGIAdapter* pAdapter, D3D_D
 	const auto result = RealD3D11CreateDeviceAndSwapChain(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel, ppImmediateContext);
 
 	if (RealDXGISwapChainPresent == nullptr && ppSwapChain) {
+#pragma warning( suppress : 6001 )
 		auto pVTable = **reinterpret_cast<uintptr_t***>(ppSwapChain);
 
 		RealDXGISwapChainPresent = reinterpret_cast<TDXGISwapChainPresent>(pVTable[8]);
 
-		uint32_t oldProtect = 0;
-		VirtualProtect(reinterpret_cast<void*>(pVTable[8]), 8, PAGE_EXECUTE_READWRITE, reinterpret_cast<DWORD*>(&oldProtect));
-		REL::safe_write(pVTable[8], &HookDXGISwapChainPresent, 8);
-		VirtualProtect(reinterpret_cast<void*>(pVTable[8]), 8, oldProtect, reinterpret_cast<DWORD*>(&oldProtect));
+		auto pHook = &HookDXGISwapChainPresent;
+		REL::safe_write(reinterpret_cast<uintptr_t>(&pVTable[8]), &pHook, sizeof(uintptr_t));
 	}
 
 	return result;

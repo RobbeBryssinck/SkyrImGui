@@ -59,7 +59,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		Sleep(100);
 
 	InitializeLog();
-	logger::info("{} v{}", Plugin::NAME, Plugin::VERSION.string());
+	logger::info("SkyrImGui");
 
 	SKSE::Init(a_skse);
 
