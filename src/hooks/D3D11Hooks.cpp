@@ -78,7 +78,6 @@ LRESULT CALLBACK HookWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void HookRendererInit(void* apThis, RendererInitOSData* apOSData, void* apFBData, void* apOut)
 {
-	logger::info("Hello world");
 	RealWndProc = apOSData->pWndProc;
 	apOSData->pWndProc = HookWndProc;
 	RealRendererInit(apThis, apOSData, apFBData, apOut);
