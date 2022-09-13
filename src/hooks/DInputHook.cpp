@@ -74,7 +74,7 @@ HRESULT _stdcall StubIDirectInputDevice8A::GetDeviceData(DWORD dataSize, LPDIDEV
 
 	const auto result = IDirectInputDevice8_GetDeviceData(m_pDevice, dataSize, outData, outDataLen, flags);
 
-	DIDEVICEINSTANCEA instanceInfo;
+	DIDEVICEINSTANCEA instanceInfo{};
 	instanceInfo.dwSize = sizeof(instanceInfo);
 	if (IDirectInputDevice8_GetDeviceInfo(m_pDevice, &instanceInfo) != DI_OK)
 	{

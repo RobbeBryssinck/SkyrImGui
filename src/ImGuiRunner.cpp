@@ -49,6 +49,11 @@ void ImGuiRunner::Present() noexcept
 	ImGui::Text("Hello world");
 	static char s_text[1024] = "Sample";
 	ImGui::InputText("Text", s_text, std::size(s_text));
+	if (GetAsyncKeyState(VK_HOME) & 0x01) {
+		logger::info("Home");
+		ImGui::Text("Home");
+	}
+
 	ImGui::End();
 
     ImGui::Render();

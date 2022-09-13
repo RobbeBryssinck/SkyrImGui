@@ -219,8 +219,19 @@ void D3D11Hooks::Install() noexcept
 
 	constexpr REL::ID RendererInitAddr{77226};
 	REL::Relocation<TRendererInit> RendererInit{ RendererInitAddr };
+
 	RealRendererInit = reinterpret_cast<TRendererInit*>(RendererInit.address());
 	MH_CreateHook(RealRendererInit, HookRendererInit, reinterpret_cast<void**>(&RealRendererInit));
+
+	auto dwStyle = WS_OVERLAPPEDWINDOW;
+	REL::safe_write(RendererInit.address() + 0x175, &dwStyle, sizeof(dwStyle));
+
+	constexpr REL::ID WindowLocAddr{68781};
+	REL::Relocation<TRendererInit> WindowLoc{ WindowLocAddr };
+
+	int32_t windowLocSetting = 3;
+	REL::safe_write(WindowLoc.address() + 0x57, &windowLocSetting, sizeof(windowLocSetting));
+
 	MH_EnableHook(nullptr);
 }
 
