@@ -88,7 +88,7 @@ HRESULT _stdcall StubIDirectInputDevice8A::GetDeviceData(DWORD dataSize, LPDIDEV
 		return result;
 	}
 
-	if (/*instanceInfo.guidInstance == GUID_SysKeyboard*/ true)
+	if (instanceInfo.guidInstance == GUID_SysKeyboard)
 	{
 		for (DWORD i = 0; i < *outDataLen; ++i)
 		{

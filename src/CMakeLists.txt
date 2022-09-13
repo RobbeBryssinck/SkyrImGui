@@ -86,6 +86,7 @@ target_link_libraries(
 	PRIVATE
 		CommonLibSSE::CommonLibSSE
 		imgui::imgui
+		dxguid
 )
 
 target_precompile_headers(
