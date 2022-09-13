@@ -60,34 +60,6 @@ void ImGuiRunner::Lost() noexcept
 {
 }
 
-// Using XInput for gamepad (will load DLL dynamically)
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-#include <xinput.h>
-typedef DWORD (WINAPI *PFN_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*);
-typedef DWORD (WINAPI *PFN_XInputGetState)(DWORD, XINPUT_STATE*);
-#endif
-
-struct ImGui_ImplWin32_Data
-{
-    HWND                        hWnd;
-    HWND                        MouseHwnd;
-    bool                        MouseTracked;
-    INT64                       Time;
-    INT64                       TicksPerSecond;
-    ImGuiMouseCursor            LastMouseCursor;
-    bool                        HasGamepad;
-    bool                        WantUpdateHasGamepad;
-
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-    HMODULE                     XInputDLL;
-    PFN_XInputGetCapabilities   XInputGetCapabilities;
-    PFN_XInputGetState          XInputGetState;
-#endif
-
-    ImGui_ImplWin32_Data()      { memset(this, 0, sizeof(*this)); }
-};
-
-
 bool ImGui_ImplWin32_UpdateMouseCursor()
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -125,9 +97,6 @@ bool ImGui_ImplWin32_UpdateMouseCursor()
 #ifndef WM_MOUSEHWHEEL
 #define WM_MOUSEHWHEEL 0x020E
 #endif
-#ifndef DBT_DEVNODES_CHANGED
-#define DBT_DEVNODES_CHANGED 0x0007
-#endif
 
 LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -135,26 +104,8 @@ LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
 
     ImGuiIO& io = ImGui::GetIO();
-    ImGui_ImplWin32_Data* bd = ImGui::GetCurrentContext() ? (ImGui_ImplWin32_Data*)ImGui::GetIO().BackendPlatformUserData : NULL;
-
     switch (msg)
     {
-		/*
-    case WM_MOUSEMOVE:
-        // We need to call TrackMouseEvent in order to receive WM_MOUSELEAVE events
-        bd->MouseHwnd = hwnd;
-        if (!bd->MouseTracked)
-        {
-            TRACKMOUSEEVENT tme = { sizeof(tme), TME_LEAVE, hwnd, 0 };
-            ::TrackMouseEvent(&tme);
-            bd->MouseTracked = true;
-        }
-        break;
-    case WM_MOUSELEAVE:
-        if (bd->MouseHwnd == hwnd)
-            bd->MouseHwnd = NULL;
-        bd->MouseTracked = false;
-        break;
     case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
     case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
     case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
@@ -192,96 +143,25 @@ LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
         return 0;
     case WM_KEYDOWN:
-    case WM_KEYUP:
     case WM_SYSKEYDOWN:
-    case WM_SYSKEYUP:
-    {
-        bool down = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
         if (wParam < 256)
-            io.KeysDown[wParam] = down;
-        if (wParam == VK_CONTROL)
-        {
-            io.KeysDown[VK_LCONTROL] = ((::GetKeyState(VK_LCONTROL) & 0x8000) != 0);
-            io.KeysDown[VK_RCONTROL] = ((::GetKeyState(VK_RCONTROL) & 0x8000) != 0);
-            io.KeyCtrl = io.KeysDown[VK_LCONTROL] || io.KeysDown[VK_RCONTROL];
-        }
-        if (wParam == VK_SHIFT)
-        {
-            io.KeysDown[VK_LSHIFT] = ((::GetKeyState(VK_LSHIFT) & 0x8000) != 0);
-            io.KeysDown[VK_RSHIFT] = ((::GetKeyState(VK_RSHIFT) & 0x8000) != 0);
-            io.KeyShift            = io.KeysDown[VK_LSHIFT] || io.KeysDown[VK_RSHIFT];
-        }
-        if (wParam == VK_MENU)
-        {
-            io.KeysDown[VK_LMENU] = ((::GetKeyState(VK_LMENU) & 0x8000) != 0);
-            io.KeysDown[VK_RMENU] = ((::GetKeyState(VK_RMENU) & 0x8000) != 0);
-            io.KeyAlt             = io.KeysDown[VK_LMENU] || io.KeysDown[VK_RMENU];
-        }
+            io.KeysDown[wParam] = 1;
         return 0;
-    }
-    case WM_SETFOCUS:
-    case WM_KILLFOCUS:
-        io.AddFocusEvent(msg == WM_SETFOCUS);
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+        if (wParam < 256)
+            io.KeysDown[wParam] = 0;
         return 0;
-		*/
     case WM_CHAR:
         // You can also use ToAscii()+GetKeyboardState() to retrieve characters.
-        if (wParam > 0 && wParam < 0x10000)
-            io.AddInputCharacterUTF16((unsigned short)wParam);
+        io.AddInputCharacter((unsigned int)wParam);
         return 0;
-		/*
     case WM_SETCURSOR:
         if (LOWORD(lParam) == HTCLIENT && ImGui_ImplWin32_UpdateMouseCursor())
             return 1;
         return 0;
     case WM_DEVICECHANGE:
-        if ((UINT)wParam == DBT_DEVNODES_CHANGED)
-            bd->WantUpdateHasGamepad = true;
         return 0;
-		*/
     }
     return 0;
 }
-
-void ImGuiRunner::RawInputHandler(RAWINPUT& aRawinput)
-{
-    if (ImGui::GetCurrentContext() == NULL)
-        return;
-
-    ImGuiIO& io = ImGui::GetIO();
-    if (aRawinput.header.dwType == RIM_TYPEMOUSE)
-    {
-        const auto mouse = aRawinput.data.mouse;
-
-        if (mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
-        {
-            io.MouseDown[0] = true;
-        }
-
-        if (mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP)
-        {
-            io.MouseDown[0] = false;
-        }
-
-        if (mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN)
-        {
-            io.MouseDown[1] = true;
-        }
-
-        if (mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP)
-        {
-            io.MouseDown[1] = false;
-        }
-
-        if (mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN)
-        {
-            io.MouseDown[2] = true;
-        }
-
-        if (mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP)
-        {
-            io.MouseDown[2] = false;
-        }
-    }
-}
-

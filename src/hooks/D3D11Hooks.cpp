@@ -67,91 +67,96 @@ struct RendererInitOSData
     int bCreateSwapChainRenderTarget;
 };
 
-uint16_t ProcessKey(uint16_t aKey, uint16_t aScanCode, bool aE0, bool aE1)
+uint16_t ExtractKey(RAWKEYBOARD aKeyboard)
 {
-	if (aKey == VK_SHIFT)
+	auto key = aKeyboard.VKey;
+	bool e0 = aKeyboard.Flags & RI_KEY_E0;
+	bool e1 = aKeyboard.Flags & RI_KEY_E1;
+	auto aScanCode = aKeyboard.MakeCode;
+
+	if (key == VK_SHIFT)
 	{
-		aKey = static_cast<uint16_t>(MapVirtualKey(aScanCode, MAPVK_VSC_TO_VK_EX));
+		key = static_cast<uint16_t>(MapVirtualKey(aScanCode, MAPVK_VSC_TO_VK_EX));
 	}
-	else if (aKey == VK_NUMLOCK)
+	else if (key == VK_NUMLOCK)
 	{
-		aScanCode = static_cast<uint16_t>(MapVirtualKey(aKey, MAPVK_VK_TO_VSC) | 0x100);
+		aScanCode = static_cast<uint16_t>(MapVirtualKey(key, MAPVK_VK_TO_VSC) | 0x100);
 	}
 
-	if (aE1)
+	if (e1)
 	{
-		if (aKey == VK_PAUSE)
+		if (key == VK_PAUSE)
 		{
 			aScanCode = 0x45;
 		}
 		else
 		{
-			aScanCode = static_cast<uint16_t>(MapVirtualKey(aKey, MAPVK_VK_TO_VSC));
+			aScanCode = static_cast<uint16_t>(MapVirtualKey(key, MAPVK_VK_TO_VSC));
 		}
 	}
 
-	if (aE0)
+	if (e0)
 	{
-		switch (aKey)
+		switch (key)
 		{
 		case VK_CONTROL:
-			aKey = VK_RCONTROL;
+			key = VK_RCONTROL;
 			break;
 		case VK_MENU:
-			aKey = VK_RMENU;
+			key = VK_RMENU;
 			break;
 		case VK_RETURN:
-			aKey = VK_SEPARATOR;
+			key = VK_SEPARATOR;
 			break;
 		}
 	}
 	else
 	{
-		switch (aKey)
+		switch (key)
 		{
 		case VK_CONTROL:
-			aKey = VK_LCONTROL;
+			key = VK_LCONTROL;
 			break;
 		case VK_MENU:
-			aKey = VK_LMENU;
+			key = VK_LMENU;
 			break;
 		case VK_INSERT:
-			aKey = VK_NUMPAD0;
+			key = VK_NUMPAD0;
 			break;
 		case VK_DELETE:
-			aKey = VK_DECIMAL;
+			key = VK_DECIMAL;
 			break;
 		case VK_HOME:
-			aKey = VK_NUMPAD7;
+			key = VK_NUMPAD7;
 			break;
 		case VK_END:
-			aKey = VK_NUMPAD1;
+			key = VK_NUMPAD1;
 			break;
 		case VK_PRIOR:
-			aKey = VK_NUMPAD9;
+			key = VK_NUMPAD9;
 			break;
 		case VK_NEXT:
-			aKey = VK_NUMPAD3;
+			key = VK_NUMPAD3;
 			break;
 		case VK_LEFT:
-			aKey = VK_NUMPAD4;
+			key = VK_NUMPAD4;
 			break;
 		case VK_RIGHT:
-			aKey = VK_NUMPAD6;
+			key = VK_NUMPAD6;
 			break;
 		case VK_UP:
-			aKey = VK_NUMPAD8;
+			key = VK_NUMPAD8;
 			break;
 		case VK_DOWN:
-			aKey = VK_NUMPAD2;
+			key = VK_NUMPAD2;
 			break;
 		case VK_CLEAR:
-			aKey = VK_NUMPAD5;
+			key = VK_NUMPAD5;
 			break;
 		}
 	}
 
-	return aKey;
+	return key;
 }
 
 using TRendererInit = void(void*, RendererInitOSData*, void*, void*);
@@ -171,15 +176,11 @@ LRESULT CALLBACK HookWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			RAWINPUT input{};
 			UINT size = sizeof(RAWINPUT);
 			GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, &input, &size, sizeof(RAWINPUTHEADER));
-			ImGuiRunner::Get().RawInputHandler(input);
 
 			const auto keyboard = input.data.keyboard;
-			auto key = keyboard.VKey;
-			bool E0 = keyboard.Flags & RI_KEY_E0;
-			bool E1 = keyboard.Flags & RI_KEY_E1;
 
-			if (key && key != 255) {
-				key = ProcessKey(key, keyboard.MakeCode, E0, E1);
+			if (keyboard.VKey && keyboard.VKey != 255) {
+				const auto key = ExtractKey(keyboard);
 
 				if (!(keyboard.Flags & RI_KEY_BREAK) && key == VK_RCONTROL || key == VK_F2) {
 					DInputHook::Get().SetEnabled(false);
