@@ -27,4 +27,5 @@ private:
 	bool IsInGame() const noexcept;
 
 	std::vector<std::unique_ptr<Window>> windows{};
+	bool isEnabled = true;
 };

@@ -49,7 +49,11 @@ void ImGuiRunner::Present() noexcept
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-	if (IsInGame()) {
+	if (GetAsyncKeyState(VK_F3) & 0x01) {
+		isEnabled = !isEnabled;
+	}
+
+	if (IsInGame() && isEnabled) {
 		for (auto& pWindow : windows) {
 			pWindow->Update();
 		}
