@@ -22,6 +22,7 @@ configure_file(
 )
 
 find_package(imgui CONFIG REQUIRED)
+find_package(minhook CONFIG REQUIRED)
 
 source_group("src" FILES "${VERSION_HEADER}")
 
@@ -86,6 +87,7 @@ target_link_libraries(
 	PRIVATE
 		CommonLibSSE::CommonLibSSE
 		imgui::imgui
+		minhook::minhook
 		dxguid
 )
 

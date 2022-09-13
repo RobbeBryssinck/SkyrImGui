@@ -1,5 +1,6 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <Windows.h>
+#include <MinHook.h>
 #include "hooks/D3D11Hooks.h"
 #include "hooks/DInputHook.h"
 
@@ -61,6 +62,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
 	InitializeLog();
 	logger::info("SkyrImGui");
+
+	MH_Initialize();
 
 	SKSE::Init(a_skse);
 

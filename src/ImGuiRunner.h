@@ -16,4 +16,5 @@ public:
 	void Lost() noexcept;
 
 	LRESULT WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	void RawInputHandler(RAWINPUT& aRawInput);
 };

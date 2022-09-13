@@ -1,5 +1,7 @@
 #include "D3D11Hooks.h"
 
+#include <MinHook.h>
+
 #include <SKSE/IAT.h>
 #include <d3d11.h>
 #include <ImGuiRunner.h>
@@ -53,12 +55,47 @@ HRESULT HookD3D11CreateDeviceAndSwapChain(_In_opt_ IDXGIAdapter* pAdapter, D3D_D
 	return result;
 }
 
+struct RendererInitOSData
+{
+    HWND hWnd;
+    HINSTANCE hInstance;
+    WNDPROC pWndProc;
+    HICON hIcon;
+    const char* pClassName;
+    uint32_t uiAdapter;
+    int bCreateSwapChainRenderTarget;
+};
+
+using TRendererInit = void(void*, RendererInitOSData*, void*, void*);
+static TRendererInit* RealRendererInit = nullptr;
+
+static WNDPROC RealWndProc = nullptr;
+
+LRESULT CALLBACK HookWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    return RealWndProc(hwnd, uMsg, wParam, lParam);
+}
+
+void HookRendererInit(void* apThis, RendererInitOSData* apOSData, void* apFBData, void* apOut)
+{
+	logger::info("Hello world");
+	RealWndProc = apOSData->pWndProc;
+	apOSData->pWndProc = HookWndProc;
+	RealRendererInit(apThis, apOSData, apFBData, apOut);
+}
+
 namespace D3D11Hooks
 {
 
 void D3D11Hooks::Install() noexcept
 {
 	RealD3D11CreateDeviceAndSwapChain = reinterpret_cast<TD3D11CreateDeviceAndSwapChain>(SKSE::PatchIAT(HookD3D11CreateDeviceAndSwapChain, "d3d11.dll", "D3D11CreateDeviceAndSwapChain"));
+
+	constexpr REL::ID RendererInitAddr{77226};
+	REL::Relocation<TRendererInit> RendererInit{ RendererInitAddr };
+	RealRendererInit = reinterpret_cast<TRendererInit*>(RendererInit.address());
+	MH_CreateHook(RealRendererInit, HookRendererInit, reinterpret_cast<void**>(&RealRendererInit));
+	MH_EnableHook(nullptr);
 }
 
 }

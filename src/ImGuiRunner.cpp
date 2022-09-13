@@ -237,3 +237,45 @@ LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+void ImGuiRunner::RawInputHandler(RAWINPUT& aRawinput)
+{
+    if (ImGui::GetCurrentContext() == NULL)
+        return;
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (aRawinput.header.dwType == RIM_TYPEMOUSE)
+    {
+        const auto mouse = aRawinput.data.mouse;
+
+        if (mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
+        {
+            io.MouseDown[0] = true;
+        }
+
+        if (mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP)
+        {
+            io.MouseDown[0] = false;
+        }
+
+        if (mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN)
+        {
+            io.MouseDown[1] = true;
+        }
+
+        if (mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP)
+        {
+            io.MouseDown[1] = false;
+        }
+
+        if (mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN)
+        {
+            io.MouseDown[2] = true;
+        }
+
+        if (mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP)
+        {
+            io.MouseDown[2] = false;
+        }
+    }
+}
+
