@@ -24,6 +24,7 @@ public:
 
 private:
 	void CreateWindows() noexcept;
+	bool IsInGame() const noexcept;
 
 	std::vector<std::unique_ptr<Window>> windows{};
 };

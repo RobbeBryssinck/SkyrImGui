@@ -8,6 +8,7 @@
 #include <d3d11.h>
 
 #include <windows/PlayerWindow.h>
+#include <windows/CellWindow.h>
 
 ImGuiRunner& ImGuiRunner::Get() noexcept
 {
@@ -48,8 +49,10 @@ void ImGuiRunner::Present() noexcept
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-	for (auto& pWindow : windows) {
-		pWindow->Update();
+	if (IsInGame()) {
+		for (auto& pWindow : windows) {
+			pWindow->Update();
+		}
 	}
 
     ImGui::Render();
@@ -170,4 +173,11 @@ LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 void ImGuiRunner::CreateWindows() noexcept
 {
 	windows.push_back(std::make_unique<PlayerWindow>());
+	windows.push_back(std::make_unique<CellWindow>());
+}
+
+bool ImGuiRunner::IsInGame() const noexcept
+{
+	auto* pPlayer = RE::PlayerCharacter::GetSingleton();
+	return pPlayer && pPlayer->Get3D();
 }
