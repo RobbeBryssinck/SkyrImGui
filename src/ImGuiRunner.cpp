@@ -7,6 +7,8 @@
 
 #include <d3d11.h>
 
+#include <windows/PlayerWindow.h>
+
 ImGuiRunner& ImGuiRunner::Get() noexcept
 {
 	static ImGuiRunner s_instance;
@@ -35,6 +37,8 @@ void ImGuiRunner::Create(IDXGISwapChain* pChain) noexcept
     d3dDevice->GetImmediateContext(&d3dContext);
 
     ImGui_ImplDX11_Init(d3dDevice, d3dContext);
+
+	CreateWindows();
 }
 
 void ImGuiRunner::Present() noexcept
@@ -44,17 +48,9 @@ void ImGuiRunner::Present() noexcept
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-	// TODO: draw stuff
-	ImGui::Begin("Test");
-	ImGui::Text("Hello world");
-	static char s_text[1024] = "Sample";
-	ImGui::InputText("Text", s_text, std::size(s_text));
-	if (GetAsyncKeyState(VK_HOME) & 0x01) {
-		logger::info("Home");
-		ImGui::Text("Home");
+	for (auto& pWindow : windows) {
+		pWindow->Update();
 	}
-
-	ImGui::End();
 
     ImGui::Render();
 
@@ -169,4 +165,9 @@ LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
     return 0;
+}
+
+void ImGuiRunner::CreateWindows() noexcept
+{
+	windows.push_back(std::make_unique<PlayerWindow>());
 }

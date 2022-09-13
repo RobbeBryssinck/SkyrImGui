@@ -18,13 +18,13 @@ TDXGISwapChainPresent RealDXGISwapChainPresent = nullptr;
 
 HRESULT __stdcall HookDXGISwapChainPresent(IDXGISwapChain* This, UINT SyncInterval, UINT Flags)
 {
-	ImGuiRunner& runner = ImGuiRunner::Get();
-
 	static std::once_flag s_initializer;
-	std::call_once(s_initializer, [runner, This]() mutable
+	std::call_once(s_initializer, [This]() mutable
 		{
-			runner.Create(This);
+			ImGuiRunner::Get().Create(This);
 		});
+
+	ImGuiRunner& runner = ImGuiRunner::Get();
 
 	runner.Present();
 
