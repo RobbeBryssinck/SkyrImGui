@@ -47,6 +47,8 @@ void ImGuiRunner::Present() noexcept
 	// TODO: draw stuff
 	ImGui::Begin("Test");
 	ImGui::Text("Hello world");
+	static char s_text[1024] = "Sample";
+	ImGui::InputText("Text", s_text, std::size(s_text));
 	ImGui::End();
 
     ImGui::Render();
@@ -137,6 +139,7 @@ LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+		/*
     case WM_MOUSEMOVE:
         // We need to call TrackMouseEvent in order to receive WM_MOUSELEAVE events
         bd->MouseHwnd = hwnd;
@@ -220,11 +223,13 @@ LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KILLFOCUS:
         io.AddFocusEvent(msg == WM_SETFOCUS);
         return 0;
+		*/
     case WM_CHAR:
         // You can also use ToAscii()+GetKeyboardState() to retrieve characters.
         if (wParam > 0 && wParam < 0x10000)
             io.AddInputCharacterUTF16((unsigned short)wParam);
         return 0;
+		/*
     case WM_SETCURSOR:
         if (LOWORD(lParam) == HTCLIENT && ImGui_ImplWin32_UpdateMouseCursor())
             return 1;
@@ -233,6 +238,7 @@ LRESULT ImGuiRunner::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if ((UINT)wParam == DBT_DEVNODES_CHANGED)
             bd->WantUpdateHasGamepad = true;
         return 0;
+		*/
     }
     return 0;
 }

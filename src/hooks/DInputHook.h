@@ -5,7 +5,7 @@
 
 struct DInputHook
 {
-	void SetEnabled(bool aEnabled) noexcept { m_enabled = aEnabled; Update(); }
+	void SetEnabled(bool aEnabled) noexcept;
 	[[nodiscard]] bool IsEnabled() const noexcept { return m_enabled; }
 	void SetToggleKeys(std::initializer_list<unsigned long> aKeys) noexcept;
 	[[nodiscard]] bool IsToggleKey(unsigned int aKey) const noexcept;

@@ -159,6 +159,12 @@ DInputHook::DInputHook() noexcept
 	SetToggleKeys({ DIK_F2, DIK_RCONTROL });
 }
 
+void DInputHook::SetEnabled(bool aEnabled) noexcept
+{
+	m_enabled = aEnabled;
+	Update();
+}
+
 void DInputHook::SetToggleKeys(std::initializer_list<unsigned long> aKeys) noexcept
 {
 	m_toggleKeys.clear();
