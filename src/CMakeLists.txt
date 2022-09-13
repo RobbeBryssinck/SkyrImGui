@@ -4,6 +4,10 @@ set(SOURCE_DIR "${ROOT_DIR}/src")
 set(SOURCE_FILES
 	"${SOURCE_DIR}/main.cpp"
 	"${SOURCE_DIR}/PCH.h"
+	"${SOURCE_DIR}/ImGuiRunner.h"
+	"${SOURCE_DIR}/ImGuiRunner.cpp"
+	"${SOURCE_DIR}/hooks/D3D11Hooks.h"
+	"${SOURCE_DIR}/hooks/D3D11Hooks.cpp"
 )
 
 source_group(TREE "${ROOT_DIR}" FILES ${SOURCE_FILES})

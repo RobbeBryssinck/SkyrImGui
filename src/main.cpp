@@ -1,5 +1,6 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <Windows.h>
+#include "hooks/D3D11Hooks.h"
 
 namespace
 {
@@ -61,6 +62,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("{} v{}", Plugin::NAME, Plugin::VERSION.string());
 
 	SKSE::Init(a_skse);
+
+	D3D11Hooks::Install();
 
 	return true;
 }
