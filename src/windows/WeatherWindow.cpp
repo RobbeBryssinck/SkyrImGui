@@ -14,9 +14,16 @@ void WeatherWindow::Update()
     {
         ImGui::InputScalar("Current weather ID", ImGuiDataType_U32, &pCurrentWeather->formID, 0, 0, "%" PRIx32,
                            ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_ReadOnly);
-
-		ImGui::Text("Current transition: %.2f", pSky->currentWeatherPct);
     }
+
+    RE::TESWeather* pPreviousWeather = pSky->lastWeather;
+    if (pPreviousWeather)
+    {
+        ImGui::InputScalar("Previous weather ID", ImGuiDataType_U32, &pPreviousWeather->formID, 0, 0, "%" PRIx32,
+                           ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_ReadOnly);
+    }
+
+	ImGui::Text("Current transition: %.2f", pSky->currentWeatherPct);
 
     ImGui::Separator();
 
