@@ -15,6 +15,8 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/windows/PlayerWindow.cpp"
 	"${SOURCE_DIR}/windows/CellWindow.h"
 	"${SOURCE_DIR}/windows/CellWindow.cpp"
+	"${SOURCE_DIR}/windows/WeatherWindow.h"
+	"${SOURCE_DIR}/windows/WeatherWindow.cpp"
 )
 
 source_group(TREE "${ROOT_DIR}" FILES ${SOURCE_FILES})
