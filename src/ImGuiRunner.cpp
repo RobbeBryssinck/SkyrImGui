@@ -10,6 +10,7 @@
 #include <windows/PlayerWindow.h>
 #include <windows/CellWindow.h>
 #include <windows/WeatherWindow.h>
+#include <windows/ProjectileWindow.h>
 
 ImGuiRunner& ImGuiRunner::Get() noexcept
 {
@@ -180,6 +181,7 @@ void ImGuiRunner::CreateWindows() noexcept
 	windows.push_back(std::make_unique<PlayerWindow>());
 	windows.push_back(std::make_unique<CellWindow>());
 	windows.push_back(std::make_unique<WeatherWindow>());
+	windows.push_back(std::make_unique<ProjectileWindow>());
 }
 
 bool ImGuiRunner::IsInGame() const noexcept
